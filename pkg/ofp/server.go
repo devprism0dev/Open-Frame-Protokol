@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/devprism0dev/Open-Frame-Protokol/internal/certs"
+	"github.com/devprism0dev/Open-Frame-Protokol/pkg/certs"
 	"github.com/sirupsen/logrus"
 )
 

@@ -1,78 +1,138 @@
-# OpenFrameProtocol (OFP)
+# OFP (Open Frame Protocol)
 
 <div align="center">
-  <img src="logo.png" alt="OpenFrameProtocol Logo" width="400">
+  <img src="docs/logo/logo.png" alt="OFP Logo" width="400">
 </div>
 
-A secure, high-performance communication protocol implementation built on top of QUIC (Quick UDP Internet Connections) with mutual TLS authentication and heartbeat mechanisms.
+A high-performance, secure communication protocol library built on QUIC for Go applications.
 
-## What is OpenFrameProtocol?
+## Features
 
-OpenFrameProtocol (OFP) is a modern, secure communication protocol designed for high-performance applications requiring reliable and encrypted data transmission. Built on the foundation of QUIC, OFP provides a robust framework for building secure client-server applications with automatic certificate management and connection health monitoring.
+- **QUIC-based**: Built on top of QUIC for better performance and connection multiplexing
+- **TLS Security**: Full TLS encryption with certificate-based authentication
+- **Frame-based Protocol**: Efficient binary frame format for data transmission
+- **Pub/Sub Support**: Built-in publish/subscribe messaging
+- **Event System**: Event-driven communication patterns
+- **Heartbeat**: Automatic connection health monitoring
+- **Metrics**: Built-in metrics collection and logging
 
-## Key Features
+## Installation
 
-- 🔒 **Mutual TLS Authentication**: Both server and client require certificates for secure communication
-- 🚀 **QUIC Protocol**: Modern transport protocol with built-in encryption and multiplexing capabilities
-- 💓 **Heartbeat System**: Automatic connection keep-alive mechanism to monitor connection health
-- 📦 **Frame-Based Architecture**: Structured protocol with support for different frame types
-- 🔐 **Auto-Generated Certificates**: Automatic certificate authority and certificate generation
-- 🎨 **User-Friendly Interface**: Beautiful server startup banner with connection information
+```bash
+go get github.com/devprism0dev/Open-Frame-Protokol
+```
 
-## Why OpenFrameProtocol?
 
-OpenFrameProtocol combines the best of modern networking technologies:
+## Quick Start
 
-- **Security First**: Mutual TLS authentication ensures that only authorized clients can connect
-- **High Performance**: QUIC protocol provides low latency and efficient multiplexing
-- **Easy to Use**: Automatic certificate generation eliminates complex setup procedures
-- **Production Ready**: Built-in heartbeat mechanism ensures reliable connection monitoring
+### Server Example
 
-## Use Cases
+```go
+package main
 
-OFP is ideal for:
-- Secure client-server applications
-- Real-time communication systems
-- IoT device management
-- Microservices communication
-- Any application requiring secure, reliable data transmission
+import (
+    "github.com/devprism0dev/Open-Frame-Protokol/pkg/ofp"
+    "log"
+)
 
-## Roadmap
+func main() {
+    handler := func(data []byte, stream *ofp.Stream) {
+        ofp.WriteDataFrame(stream, data)
+    }
 
-OpenFrameProtocol will be released soon with comprehensive SDK support for a wide range of platforms and architectures:
+    server := ofp.NewServer(ofp.ServerConfig{
+        Addr:    "0.0.0.0:4433",
+        Handler: handler,
+        ShowBanner: true,
+    })
 
-- **IoT Devices**: Lightweight SDKs for embedded systems and IoT devices
-- **Microservices**: Native SDKs for microservices architectures
-- **Cloud Platforms**: SDK support for major cloud providers
-- **Mobile Platforms**: iOS and Android SDKs
-- **Web Applications**: JavaScript/TypeScript SDK for browser and Node.js environments
-- **Enterprise Systems**: SDKs for enterprise-grade applications
+    if err := server.Listen(); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
+}
+```
 
-Our goal is to make OpenFrameProtocol accessible across all modern development environments, from resource-constrained IoT devices to large-scale microservices architectures.
+### Client Example
 
-## Security
+```go
+package main
 
-OpenFrameProtocol prioritizes security through:
-- **Mutual TLS Authentication**: Both parties must authenticate
-- **Strong Encryption**: Industry-standard encryption mechanisms
-- **Certificate Validation**: Automatic verification of client certificates
-- **Secure by Default**: All connections are encrypted and authenticated
+import (
+    "github.com/devprism0dev/Open-Frame-Protokol/pkg/ofp"
+    "log"
+)
 
-## Support & Contribution
+func main() {
+    handler := func(data []byte, stream *ofp.Stream) {
+        log.Printf("Received: %s", string(data))
+    }
 
-We are open to support, contributions, and feedback! OpenFrameProtocol is a community-driven project, and we welcome:
+    client := ofp.NewClient(ofp.ClientConfig{
+        Addr:    "localhost:4433",
+        Handler: handler,
+    })
 
-- 🐛 **Bug Reports**: Help us improve by reporting issues
-- 💡 **Feature Requests**: Share your ideas for new features
-- 📝 **Documentation**: Help improve our documentation
-- 🔧 **Code Contributions**: Contribute code improvements and new features
-- ❓ **Questions & Support**: We're here to help with any questions
+    if err := client.Connect("my-client"); err != nil {
+        log.Fatalf("Failed to connect: %v", err)
+    }
+    defer client.Close()
 
-Your contributions help make OpenFrameProtocol better for everyone. We appreciate every form of support and are always open to collaboration!
+    // Send data
+    client.SendData([]byte("Hello, Server!"))
+}
+```
 
----
+## Features in Detail
 
-<div align="center">
-  <em>Don't Panic</em>
-</div>
+### Pub/Sub Messaging
+
+```go
+// Subscribe to a topic
+client.Subscribe("news", func(data []byte) {
+    log.Printf("News: %s", string(data))
+})
+
+// Publish to a topic
+client.Publish("news", []byte("Breaking news!"))
+```
+
+### Event System
+
+```go
+// Listen to events
+client.On("user-login", func(data []byte) {
+    log.Printf("User logged in: %s", string(data))
+})
+
+// Emit events
+client.Emit("user-login", []byte("john.doe"))
+```
+
+## Certificate Management
+
+OFP automatically generates and manages TLS certificates. Certificates are stored in a `certs/` directory relative to your application.
+
+- Server certificates are automatically created on first run
+- Client certificates are generated per client connection
+- All certificates are signed by a common CA
+
+## Examples
+
+See the `examples/` directory for more complete examples:
+
+- `basic-server/` - Simple server implementation
+- `basic-client/` - Simple client implementation
+
+## Requirements
+
+- Go 1.25.1 or later
+- QUIC support (provided by `github.com/quic-go/quic-go`)
+
+## License
+
+See LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
